@@ -1,7 +1,4 @@
 # v.1.1.1 - Nicholas Perez-Aguilar
-'''
-
-'''
 def time_conv_hr(mil):
     civ = 0
     append = ":00:00"
@@ -40,6 +37,19 @@ def Menu(Men_ops):
 def space():
     for i in range(10):
         print("\n")
+        
+    
+def get_y_n_choice(mess):
+    choice = ""
+    
+    space()    
+    while(choice != 'n' and choice != 'y'):
+        choice = input(mess)
+        
+        choice = choice.lower()
+        
+    return choice
+
 
 #print(time_mil_to_civ_hr(700))
 #print(time_mil_to_civ_hr(900))

@@ -1,10 +1,9 @@
 # v.1.1.1 - Nicholas Perez-Aguilar
-'''
-
-'''
 import MySQLdb
-import DBMSInsert as ins
+import DBMSInsert as dbins
+import DBMSRead as dbread
 import misc_funcs as mf
+import SQLqueries as sql
 
 global c
 global db
@@ -12,36 +11,115 @@ global db
 def main():
     usr_choice = 0
     Menu_items = ["Insert Into Database", "Read From Database", "Stage", "Dispense", "Bag Check"]
+    ins_choices = ["Insert New Object", "Insert with Existing OSN"]
     write_list = []
     query = ""
     q_vals = ""
+    exist_OSN = ""
+    results = []
+    pass_for_exist = []
+    message = "OSN does not exist in database. Create new object? [Y/n] "
     
     while True:
         usr_choice = mf.Menu(Menu_items)
         
         # Case Statements equivalent -- not really...
         if(usr_choice == 1):
-            write_list = ins.write()
+            mf.space()
             
-            # Test returned values
-            #print(write_list)
+            usr_choice = mf.Menu(ins_choices)
+            mf.space()
+            
+            if(usr_choice == 1):
+                write_list = dbins.write()
+            elif(usr_choice == 2):
+                # Get OSN from user
+                OSN = dbins.get_osn()
+                
+                # Test OSN against DBMS
+                query = sql.test_OSN(OSN)
+                
+                try:
+                    c.execute(query)
+                    results = c.fetchall()
+                    mf.space()
+                                        
+                    if(len(results) == 0):
+                        choice = mf.get_y_n_choice(message)
+                        
+                        if(choice == 'y'):
+                            write_list = dbins.write()
+                        else:
+                            main()
+                    else:
+                        time_delta = results[0][2]
+                        c_name = results[0][3]
+                        osn = results[0][4]
+                        ptype = results[0][5]
+                        bags = results[0][8]
+                        
+#                        print("Time delta: " + str(time_delta))
+#                        print("Customer name: " + str(c_name))
+#                        print("OSN: " + str(osn))
+#                        print("Pickup Type: " + str(ptype))
+                            
+                        pass_for_exist.append(str(time_delta))
+                        pass_for_exist.append(str(c_name))
+                        pass_for_exist.append(str(osn))
+                        pass_for_exist.append(str(ptype))
+                        pass_for_exist.append(str(bags))
+                            
+                        # Pass useful data into exist write for
+                        write_list = dbins.exist_write(pass_for_exist)
+                        
+                        # Reset list
+                        pass_for_exist.clear()
 
-            q_vals = ("VALUES ('" + str(write_list[0]) + "', '" + str(write_list[1]) + "', '" + str(write_list[2]) + "', '" + str(write_list[3]) + "', '" + str(write_list[4]) + "', '" + str(write_list[5]) + "', '" + str(write_list[6]) + "', '" + str(write_list[7]) + "', '" + str(write_list[8]) + "');")
-            query = ("INSERT INTO Create_Objs (Order_Num, Type, Due_Time, Cust_Name, OSN, Pickup_Type, Location, Dispensed, Bags) " + q_vals)
+                except:
+                    print("Error: OSN Read Failure")
+                    db.rollback()
+                    mf.space()
+            else:
+                print("Error: Insertion choice")
             
+            query = sql.insert_new_obj(write_list)
+            
+
+
+
+
+
+
+
+
+
+
+
             try:
-                #print(query)
                 c.execute(query)
                 db.commit()
                 mf.space()
-                print("Write succesful!")
+                print("Write successful!")
             except:
                 db.rollback()
                 mf.space()
-                print("An error has occurred!")
+                print("An error has occurred at the database level!\nVerify the object has not already been inserted before retrying!")
                 
         elif(usr_choice == 2):
-            ins.read()
+            query = sql.read_all_db_data()
+            
+            try:
+                c.execute(query)
+                result = c.fetchall()
+                
+                if(result == None):
+                    print("No results returned from database!")
+                else:
+                    for i in range(len(result)):
+                        print(result[i])
+            except:
+                print("Something went wrong!")
+
         elif(usr_choice == 3):
             print("Staging coming soon!")
         elif(usr_choice == 4):
@@ -50,8 +128,10 @@ def main():
             print("Bag Check coming soon!")
         else:
             print("Invalid choice")
+            usr_choice = 0
          
         print("\n\n\n")
+        query = "" # Reset as a precaution
         #mf.space()
 
 
