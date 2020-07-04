@@ -84,17 +84,6 @@ def main():
             
             query = sql.insert_new_obj(write_list)
             
-
-
-
-
-
-
-
-
-
-
-
             try:
                 c.execute(query)
                 db.commit()
@@ -106,20 +95,59 @@ def main():
                 print("An error has occurred at the database level!\nVerify the object has not already been inserted before retrying!")
                 
         elif(usr_choice == 2):
-            query = sql.read_all_db_data()
+            query = dbread.read()
+            
+            # Used to get the OSN from the Order Number
+            if("SELECT OSN FROM" in query):
+                try:
+                    c.execute(query)
+                    result = c.fetchall()
+                    
+                    if(len(result) == 0):
+                        print("No results returned from database!")
+                    else:
+                        osn = result[0][0]
+                        
+                        # Get query using OSN to find objects
+                        query = sql.read_order(osn)
+                except:
+                    print("Something went wrong!")
+                
+            mf.space()
             
             try:
                 c.execute(query)
                 result = c.fetchall()
                 
-                if(result == None):
+                if(len(result) == 0):
                     print("No results returned from database!")
                 else:
                     for i in range(len(result)):
-                        print(result[i])
+                        on = result[i][0]
+                        tt = result[i][1]
+                        time = result[i][2]
+                        name = result[i][3]
+                        osn = result[i][4]
+                        ptype = result[i][5]
+                        loca = result[i][6]
+                        disp = result[i][7]
+                        need_bag = result[i][8]
+                    
+                        dispensed = mf.decode_num(disp)
+                        bags = mf.decode_num(need_bag)
+                        
+                        print("\n\n")
+                        print("Order Number: " + str(on))
+                        print("Tote Type: " + str(tt))
+                        print("Due Time: " + str(time))
+                        print("Customer Name: " + str(name))
+                        print("OSN: " + str(osn))
+                        print("Pickup: " + str(ptype))
+                        print("Location: " + str(loca))
+                        print("Dispensed: " + str(dispensed))
+                        print("Bags: " + str(bags))
             except:
                 print("Something went wrong!")
-
         elif(usr_choice == 3):
             print("Staging coming soon!")
         elif(usr_choice == 4):

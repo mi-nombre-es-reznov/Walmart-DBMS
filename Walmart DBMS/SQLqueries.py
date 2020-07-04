@@ -13,6 +13,21 @@ def read_all_db_data(): # Returns exactly what DBMS gives
     return query
 
 def test_OSN(osn):
-    query = ("SELECT * FROM Create_Objs WHERE OSN = '{0}'".format(osn))
+    query = ("SELECT * FROM Create_Objs WHERE OSN = '{0}';".format(osn))
+    
+    return query
+
+def read_tote(k): # Reads all data tied to tote object (Order Num)
+    query = ("SELECT * FROM Create_Objs WHERE Order_Num = '{0}';".format(k))
+    
+    return query
+
+def read_order(k): # Reads all totes that have the requested OSN number
+    query = ("SELECT * FROM Create_Objs WHERE OSN = '{0}';".format(k))
+    
+    return query
+
+def get_OSN(k): # Uses the order number to get the OSN
+    query = ("SELECT OSN FROM Create_Objs WHERE Order_Num = '{0}';".format(k))
     
     return query

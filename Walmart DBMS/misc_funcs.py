@@ -50,6 +50,19 @@ def get_y_n_choice(mess):
         
     return choice
 
+def decode_num(d):
+    decode = ""
+    
+    if(d == 0):
+        decode = "No"
+    elif(d == 1):
+        decode = "Yes"
+    elif(d == 2):
+        decode = "Needs Update"
+    else:
+        decode = "Error"
+        
+    return decode
 
 #print(time_mil_to_civ_hr(700))
 #print(time_mil_to_civ_hr(900))

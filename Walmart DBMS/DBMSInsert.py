@@ -87,7 +87,7 @@ def get_totetype():
 def get_cust():
     cust_name = ""
     # Get Customer name
-    while(len(cust_name) != 7):
+    while(len(cust_name) < 1 or len(cust_name) > 7):
         cust_name = input("Requesting customer name [AS ON LABEL]: ") # Cust name
 
     return cust_name
@@ -187,4 +187,3 @@ def exist_write(existing):
     del order
     
     return ret_list
-
