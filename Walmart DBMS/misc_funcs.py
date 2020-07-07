@@ -64,7 +64,16 @@ def decode_num(d):
         
     return decode
 
-#print(time_mil_to_civ_hr(700))
-#print(time_mil_to_civ_hr(900))
-#print(time_mil_to_civ_hr(1200))
-#print(time_mil_to_civ_hr(1900))
+def get_pos():
+    pos = -1
+    # Get position in row
+    while(pos < 0 or pos > 2):
+        space()
+        try:
+            pos = int(input("What position is this tote in the row: "))
+        except ValueError:
+            print("Enter a value")
+            pos = -1
+        
+        
+    return pos

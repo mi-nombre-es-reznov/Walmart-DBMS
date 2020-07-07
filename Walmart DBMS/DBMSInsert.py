@@ -181,6 +181,7 @@ def exist_write(existing):
     order.set_vals(tote_type, cust_name, pickup, bags)
     
     mf.space()
+    
     # Display results
     ret_list = order.get_vals()
     
