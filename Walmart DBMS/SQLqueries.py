@@ -43,6 +43,11 @@ def insert_stage_loc_pos(table, osn, row, pos): # Insert the stage location and 
     
     return query
 
+def insert_stage_top(table, osn, side): # Insert top and side
+    query = ("INSERT INTO {0}(OSN, Side) VALUES('{1}', '{2}');".format(table, osn, side))
+    
+    return query
+
 def del_old_loc(table, osn): # Deletes the location of the OSN from the non-main tables
     query = ("DELETE FROM {0} WHERE OSN = '{1}';".format(table, osn))
     
@@ -50,5 +55,20 @@ def del_old_loc(table, osn): # Deletes the location of the OSN from the non-main
 
 def update_stage_loc_bulk(osn, old_loc, new_loc): # Updates multiples totes in a location by OSN
     query = ("UPDATE Create_Objs SET Location = '{0}' WHERE OSN = '{1}' and Location = '{2}';".format(new_loc, osn, old_loc))
+    
+    return query
+
+def disp_ret_canc_update(upd, osn): # This query either dispenses, returns, or cancels orders
+    query = ("UPDATE Create_Objs SET Dispensed = '{0}' WHERE OSN = {1};".format(upd, osn))
+    
+    return query
+
+def check_for_bags(): # This query checks the database for all orders that have no bag decision
+    query = ("SELECT Due_Time, Cust_Name, OSN, Location FROM `Create_Objs` WHERE Dispensed = 0 and Bags = 2")
+    
+    return query
+
+def update_bags(upd, osn): # Update bag check
+    query = ("UPDATE Create_Objs SET Bags = '{0}' WHERE OSN = '{1}';".format(upd, osn))
     
     return query

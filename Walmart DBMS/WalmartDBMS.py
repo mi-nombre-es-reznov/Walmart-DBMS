@@ -11,7 +11,7 @@ global db
 
 def main():
     usr_choice = 0
-    Menu_items = ["Insert Into Database", "Read From Database", "Stage", "Change Staging Locations", "Dispense", "Bag Check", "Clear Database"]
+    Menu_items = ["Insert Into Database", "Read From Database", "Stage", "Change Staging Locations", "Dispense", "Bag Check", "Statistics", "Clear Database"]
     ins_choices = ["Insert New Object", "Insert with Existing OSN"]
     write_list = []
     query = ""
@@ -174,10 +174,13 @@ def main():
                                 stage_loc = input("Scan (or Enter) the staging location: ")
                                 table_stage, table_row = stage.decode_loc(stage_loc)
                                 mf.space()    
-                        
-                            # Get position
-                            pos = mf.get_pos()
-                            table_pos = str(pos)
+                            
+                            if(table_row == "UR01" or table_row == "UR11"):
+                                pass
+                            else:
+                                # Get position
+                                pos = mf.get_pos()
+                                table_pos = str(pos)
                             
 #                            print("OSN: " + osn)
 #                            print("Table Loc: " + table_stage)
@@ -199,12 +202,15 @@ def main():
                                 print("Error: Updating object location")
                                 
                             # Get query for inserting row and pos into chosen table
-                            update_loc_insert = sql.insert_stage_loc_pos(table_stage, osn, table_row, table_pos)
+                            if(table_row == "UR01" or table_row == "UR11"):
+                                update_loc_insert = sql.insert_stage_top(table_stage, osn, table_row)
+                            else:
+                                update_loc_insert = sql.insert_stage_loc_pos(table_stage, osn, table_row, table_pos)
                             #print("Query: " + update_loc_insert)
+                            
                             try:
                                 c.execute(update_loc_insert)
                                 db.commit()
-                                mf.space()
                                 print("Success: Table Stage has been updated")
                             except:
                                 db.rollback()
@@ -215,6 +221,8 @@ def main():
                             osn = ""
                             table_stage = ""
                             table_row = ""
+                            table_pos = ""
+                            update_loc_insert = ""
                     except:
                         print("Error: GET OBJECT OSN STAGE")
                 else:
@@ -237,8 +245,11 @@ def main():
                     break
                 
                 new_loc, new_row = stage.decode_loc(new_loc_ins)
-                pos = mf.get_pos()
-                str_pos = str(pos)
+                if(new_row == "UR01" or new_row == "UR11"):
+                    pass
+                else:
+                    pos = mf.get_pos()
+                    str_pos = str(pos)
 
                 # Pull all data about unison of totes
                 query = sql.read_tote(tote)
@@ -285,8 +296,11 @@ def main():
                             mf.space()
                             print("Error: Bulk Update Failure")
                             
-                        # Write new location in table
-                        query = sql.insert_stage_loc_pos(new_loc, osn, new_row, pos)
+                        if(new_row == "UR01" or new_row == "UR11"):
+                            query = sql.insert_stage_top(new_loc, osn, new_row)
+                        else:
+                            # Write new location in table
+                            query = sql.insert_stage_loc_pos(new_loc, osn, new_row, pos)
                         
                         # Reset values for next entry
                         new_loc = ""
@@ -308,13 +322,164 @@ def main():
                     mf.space()
                     print("Error: Tote Read Failure")
                     db.rollback()
-                    
-                    
         elif(usr_choice == 5):
-            print("Dispensing coming soon!")
+            Dispensing_Menu = ["Dispense", "Return", "Cancel"]
+            usr_choice = ""
+            OSN = ""
+                    
+            while(tote == ""):
+                usr_choice = mf.Menu(Dispensing_Menu)
+                tote = input("Scan a tote [or enter Order Number]: ")
+                
+                if(tote == "-1"):
+                    break
+                
+            # Get OSN from order num
+            query = sql.get_OSN(tote)
+            
+            try:
+                c.execute(query)
+                results = c.fetchall()
+                
+                OSN = str(results[0][0])
+                mf.space()
+                print("OSN obtained!")
+            except:
+                db.rollback()
+                mf.space()
+                print("OSN failed to be obtained!")
+                main()
+                
+            if(usr_choice == 1):
+                update = 1
+            elif(usr_choice == 2):
+                update = 0
+            elif(usr_choice == 3):
+                update = 2
+            else:
+                mf.space()
+                print("Something went wrong!")
+                main()
+            
+            # Update dispense field
+            query = sql.disp_ret_canc_update(update, OSN)
+            
+            try:
+                c.execute(query)
+                db.commit()
+                mf.space()
+                print("Dispensing updated!")
+            except:
+                db.rollback()
+                mf.space()
+                print("Error: Dispensing Update Failure")
+                
+            # Reset values
+            tote = ""            
         elif(usr_choice == 6):
-            print("Bag Check coming soon!")
-        elif(usr_chioce == 7):
+            bags = ""
+            check = ""
+            choice = ""
+            bag_choice = ["View All Unspecified Orders", "Update Order"]
+            times = []
+            names = []
+            OSNs = []
+            Locs = []
+            new_times = []
+            new_names = []
+            new_osns = []
+            new_locs = []
+            onum = ""
+            
+            check = mf.Menu(bag_choice)
+            
+            if(check == 1):
+                query = sql.check_for_bags()
+                
+                try:
+                    c.execute(query)
+                    results = c.fetchall()
+                    mf.space()
+                    #print("Results: " + str(results))
+                    
+                    for i in range(len(results)):
+                        times.append(str(results[i][0]))
+                        names.append(str(results[i][1]))
+                        OSNs.append(str(results[i][2]))
+                        Locs.append(str(results[i][3]))
+                    
+                    for i in range(len(results)):
+                        if(OSNs[i] not in new_times and names[i] != "None"):
+                            new_times.append(times[i])
+                            new_names.append(names[i])
+                            new_osns.append(OSNs[i])
+                            new_locs.append(Locs[i])
+                    
+                    mf.disp_need_bags_checks(new_times, new_names, new_osns, new_locs)
+                except:
+                    db.rollback()
+                    mf.space()
+                    print("Error: Bag Check Failure")
+            elif(check == 2):
+                while(onum == ""):
+                    onum = input("Scan tote [or enter Order Number]: ")
+                    query = sql.get_OSN(onum)
+                    
+                    try:
+                        c.execute(query)
+                        results = c.fetchall()
+                        mf.space()
+                        
+                        if(len(results) == 0):
+                            print("No data returned from DBMS")
+                        else:
+                            upd = mf.get_y_n_choice("Does this order require bags [Y/n]: ")
+                            print("Update: " + upd)
+                            
+                            if(upd == 'n'):
+                                check = "0"
+                            elif(upd == 'y'):
+                                check = "1"
+                            else:
+                                print("Error: Bag Check")
+                            
+                            OSN = str(results[0][0])
+                            query = sql.update_bags(check, OSN)
+                            
+                            try:
+                                c.execute(query)
+                                db.commit()
+                                mf.space()
+                                print("Bag Check Update Successful!")
+                            except:
+                                db.rollback()
+                                mf.space()
+                                print("Error: Bag Check Update")
+                    except:
+                        db.rollback()
+                        mf.space()
+                        print("Error: Tote Data Failure")
+                        
+                # Reset Values
+                bags = ""
+                check = ""
+                choice = ""
+                times.clear()
+                names.clear()
+                OSNs.clear()
+                Locs.clear()
+                new_times.clear()
+                new_names.clear()
+                new_osns.clear()
+                new_locs.clear()
+                onum = ""
+                        
+            else:
+                print("Something went wrong!")
+                
+        elif(usr_choice == 7):
+            print("Statistics page coming soon!")
+        elif(usr_choice == 8):
             print("Database Clearing coming soon!")
         else:
             print("Invalid choice")

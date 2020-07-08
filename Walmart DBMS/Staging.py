@@ -49,6 +49,12 @@ def decode_loc(l):
     elif(l == "LR02" or l == "1001100010100100011000000110010"):
         decode = "Late"
         row = "LR02"
+    elif(l == "UR01" or l == "1010101010100100011000000110001"):
+        decode = "Top_Shelf"
+        row = "UR01"
+    elif(l == "UR11" or l == "1010101010100100011000100110001"):
+        decode = "Top_Shelf"
+        row = "UR11"
     else:
         print("Invalid Location. Enter a valid location!")
         decode = "Invalid"
