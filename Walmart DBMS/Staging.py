@@ -55,6 +55,48 @@ def decode_loc(l):
     elif(l == "UR11" or l == "1010101010100100011000100110001"):
         decode = "Top_Shelf"
         row = "UR11"
+    elif(l == "BR01" or l == "1000010010100100011000000110001"):
+        decode = "Back_Room"
+        row = "BR01"
+    elif(l == "BR02" or l == "1000010010100100011000000110010"):
+        decode = "Back_Room"
+        row = "BR02"
+    elif(l == "BR03" or l == "1000010010100100011000000110011"):
+        decode = "Back_Room"
+        row = "BR03"
+    elif(l == "BR11" or l == "1000010010100100011000100110001"):
+        decode = "Back_Room"
+        row = "BR11"
+    elif(l == "BR12" or l == "1000010010100100011000100110010"):
+        decode = "Back_Room"
+        row = "BR12"
+    elif(l == "BR13" or l == "1000010010100100011000100110011"):
+        decode = "Back_Room"
+        row = "BR13"
+    elif(l == "BR21" or l == "1000010010100100011001000110001"):
+        decode = "Back_Room"
+        row = "BR21"
+    elif(l == "BR22" or l == "1000010010100100011001000110010"):
+        decode = "Back_Room"
+        row = "BR22"
+    elif(l == "BR23" or l == "1000010010100100011001000110011"):
+        decode = "Back_Room"
+        row = "BR23"
+    elif(l == "BR31" or l == "1000010010100100011001100110001"):
+        decode = "Back_Room"
+        row = "BR31"
+    elif(l == "BR31" or l == "1000010010100100011001100110001"):
+        decode = "BR31"
+        row = "Back_Room"
+    elif(l == "BR32" or l == "1000010010100100011001100110010"):
+        decode = "BR32"
+        row = "Back_Room"
+    elif(l == "BR33" or l == "1000010010100100011001100110011"):
+        decode = "Back_Room"
+        row = "BR33"
+    elif(l == "DS00" or l == "1000100010100110011000000110000"):
+        decode = "Dead_Stage"
+        row = "DS00"
     else:
         print("Invalid Location. Enter a valid location!")
         decode = "Invalid"

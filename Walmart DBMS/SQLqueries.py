@@ -72,3 +72,33 @@ def update_bags(upd, osn): # Update bag check
     query = ("UPDATE Create_Objs SET Bags = '{0}' WHERE OSN = '{1}';".format(upd, osn))
     
     return query
+
+def hour_order_cnt(t): # Query that grabs all orders within requested hour
+    query = ("SELECT * FROM `Create_Objs` WHERE Due_Time = '{0}' GROUP BY OSN;".format(t))
+    
+    return query
+
+def get_spec_loc(loc, osn): # Query to grab the specific order's location
+    query = ("SELECT * FROM {0} WHERE OSN = '{1}';".format(loc, osn))
+    
+    return query
+
+def get_cancelled(): # Get all cancelled orders
+    query = ("SELECT * FROM `Create_Objs` WHERE Dispensed = '2';")
+    
+    return query
+
+def get_type_groupings(): # Get all groupings with no dups in OSN
+    query = ("SELECT * FROM `Create_Objs`;")
+    
+    return query
+
+def get_deliveries_time(hour): # Pull all deliveries for a specified hour
+    query = ("SELECT OSN, Location FROM `Create_Objs` WHERE Pickup_Type = 'Delivery' and Due_Time = '{0}'".format(hour))
+    
+    return query
+
+def get_order_osn(osn): # Get an order from the database via an OSN number
+    query = ("SELECT OSN, Due_Time, Type, Location, Bags FROM `Create_Objs` WHERE OSN = '{0}'".format(osn))
+    
+    return query

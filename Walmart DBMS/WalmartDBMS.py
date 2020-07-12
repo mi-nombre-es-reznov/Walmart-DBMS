@@ -5,6 +5,7 @@ import DBMSRead as dbread
 import misc_funcs as mf
 import SQLqueries as sql
 import Staging as stage
+import stats as stat
 
 global c
 global db
@@ -478,7 +479,293 @@ def main():
                 print("Something went wrong!")
                 
         elif(usr_choice == 7):
-            print("Statistics page coming soon!")
+            Stats_Items = ["General Tote Information", "Timed Deliveries", "Order Count", "Cancelled Orders", "Display Backroom Data", "Find Order"]
+            count = 0
+                        
+            choice = mf.Menu(Stats_Items)
+            
+            if(choice == 1):
+                query = stat.get_groupings()
+            elif(choice == 2):
+                query = stat.get_deliveries_hour()
+            elif(choice == 3):
+                query = stat.get_order_cnt()
+            elif(choice == 4):
+                query = stat.cancelled_orders()
+            elif(choice == 5):
+                print("Backroom data coming soon!")
+            elif(choice == 6):
+                query = stat.find_order()
+            else:
+                print("Something went wrong!")
+                mf.space()
+            
+            # Display Results
+            try:
+                c.execute(query)
+                results = c.fetchall()
+                
+                if(len(results) == 0):
+                    mf.space()
+                    print("No data returned from DBMS")
+                else:                    
+                    # Switch through to find correct data from ret results
+                    if(choice == 1):
+                        cnt_list = []
+                        a_list = []
+                        c_list = []
+                        f_list = []
+                        u_list = []
+                        n_list = []
+                        a_cnt = 0
+                        c_cnt = 0
+                        f_cnt = 0
+                        u_cnt = 0
+                        n_cnt = 0
+                        count = 0
+                
+                        try:
+                            c.execute(query)
+                            results = c.fetchall()
+                            
+                            # Get the OSN from each and push to specific type
+                            for i in range(len(results)):
+                                osn = str(results[i][4])
+                                ttype = str(results[i][1])
+                                
+                                # Compare types for location pushing
+                                if(ttype == "AMBIENT"):
+                                    if(osn not in a_list):
+                                        a_list.append(osn)
+                                elif(ttype == "CHILLED"):
+                                    if(osn not in c_list):
+                                        c_list.append(osn)
+                                elif(ttype == "FROZEN"):
+                                    if(osn not in f_list):
+                                        f_list.append(osn)
+                                elif(ttype == "UNKNOWN"):
+                                    if(osn not in u_list):
+                                        u_list.append(osn)
+                                elif(ttype == "None"):
+                                    if(osn not in n_list):
+                                        n_list.append(osn)
+                                    
+                                # Keep a global counter
+                                count += 1
+                                    
+                            # Get the number of entries per list
+                            a_cnt = len(a_list)
+                            c_cnt = len(c_list)
+                            f_cnt = len(f_list)
+                            u_cnt = len(u_list)
+                            n_cnt = len(n_list)
+                            
+                            # Push all length values into a list
+                            cnt_list.append(a_cnt)
+                            cnt_list.append(c_cnt)
+                            cnt_list.append(f_cnt)
+                            cnt_list.append(u_cnt)
+                            cnt_list.append(n_cnt)
+                                                
+                            # Get max values
+                            largest = mf.get_lgst_num(cnt_list)
+                            stat.print_gen_res(largest, count, a_cnt, c_cnt, f_cnt, u_cnt, n_cnt, a_list, c_list, f_list, u_list, n_list)
+                            
+                        except:
+                            db.rollback()
+                            mf.space()
+                            print("Error: General Data Fetching")
+                        
+                        # Reset values
+                        cnt_list.clear()
+                        a_list.clear()
+                        c_list.clear()
+                        f_list.clear()
+                        u_list.clear()
+                        n_list.clear()
+                        a_cnt = 0
+                        c_cnt = 0
+                        f_cnt = 0
+                        u_cnt = 0
+                        n_cnt = 0
+                    elif(choice == 2):
+                        o_list = []
+                        l_list = []
+                        osn = ""
+                        loc = ""
+                        isin = False
+                        
+                        #print("Res: " + str(results))
+                        
+                        if(len(results) == 0):
+                            print("No database results returned")
+                        else:
+                            for i in range(len(results)):
+                                osn = str(results[i][0])
+                                loc = str(results[i][1])
+                                
+                                if(osn not in o_list):
+                                    o_list.append(osn)
+                                    l_list.append(loc)
+                                elif(osn in o_list): # Bound check for multiple locations
+                                    for j in range(len(o_list)):
+                                        if(o_list[j] == osn and l_list[j] == loc):
+                                            isin = False
+                                        elif(o_list[j] != osn):
+                                            pass
+                                        else:
+                                            isin = True
+                                            
+                                        if(isin == True):
+                                            o_list.append(osn)
+                                            l_list.append(loc)
+                                            break
+                                        
+                                    # Reset boolean
+                                    isin = False
+                            
+                            # Display results            
+                            for i in range(len(o_list)):
+                                print(o_list[i] + "\t" + l_list[i])
+                                
+                            # Reset vals
+                            o_list.clear()
+                            l_list.clear()
+                            osn = ""
+                            loc = ""
+                    elif(choice == 3):                        
+                        # Get time
+                        time = str(results[0][2])
+                        
+                        # Display description
+                        print("Showing orders for requested time: " + time + '\n')
+                        print("OSN\tLocation\tRow\tPosition\n---\t--------\t---\t--------")
+                        
+                        # Display results
+                        #print("Res: " + str(results))
+                        for i in range(len(results)):
+                            osn = str(results[i][4])
+                            loc = str(results[i][6])                            
+                            count += 1
+                            
+                            # Get exact location with current loc and osn
+                            if(loc == "unstaged"):
+                                print(str(osn) + "\t" + str(loc) + "\tNULL\tNULL")
+                            else:
+                                query = sql.get_spec_loc(loc, osn)
+                                loc = loc.replace('_', ' ')
+                                #print("query: " + query)
+                            
+                                # Get location
+                                try:
+                                    c.execute(query)
+                                    res = c.fetchall()
+                                    #print("inner res: " + str(results))
+                                    row = str(res[0][1])
+                                    #print("Row top: " + row)
+                                    
+
+                                    if(row == 'UR01' or row == 'UR11'):
+                                        pass
+                                    else:
+                                        #print("Res: " + str(results))
+                                        pos = str(res[0][2])
+                                            
+                                    if(row == "UR01" or row == "UR11"):
+                                        print(str(osn) + "\t" + str(loc) + "\t" + str(row) + "\tNone")
+                                    else:
+                                        print(str(osn) + "\t" + str(loc) + "\t" + str(row) + "\t" + str(pos))
+
+                                except:
+                                    db.rollback()
+                                    mf.space()
+                                    print("An error has occured with gathering the object location.")
+                            
+
+                        print("\n\nShowing a total of " + str(count) + " orders.")
+                    elif(choice == 4):
+                        # Display all cancelled osn's
+                        for i in range(len(results)):
+                            osn = results[i][4]
+                            print(osn)
+                            count += 1
+                            
+                        # Print final count
+                        print("\n\nShowing a total of " + str(count) + " cancelled orders.")
+                    elif(choice == 5):
+                        pass
+                    elif(choice == 6):
+                        n_bags = 0
+                        time = ""
+                        bags = ""
+                        loc = ""
+                        osn = 0
+                        tote = []
+                        loc = []
+                        e_loc = []
+                        e_pos = []
+                       
+                        #print("Res: " + str(results))
+                        
+                        if(len(results) == 0):
+                            print("No data returned from DBMS")
+                        else:
+                            # Get Time and bags
+                            osn = str(results[0][0])
+                            n_bag = str(results[0][4])
+                            time = str(results[0][1])
+                            
+                            # Get all tote types and locs
+                            for i in range(len(results)):
+                                tote.append(results[i][2])
+                                loc.append(results[i][3])
+                                
+                            # Get exact locs
+                            for i in range(len(tote)):
+                                if(loc[i] != "unstaged" or loc[i] != "Dead_Stage"):
+                                    query = sql.get_spec_loc(loc[i], osn)
+                                    #print(query)
+                                    
+                                    try:
+                                        c.execute(query)
+                                        res = c.fetchall()
+                                    
+                                        if(len(res) == 0):
+                                            print("No data from DBMS")
+                                        else:
+#                                            print("a: " + str(res))
+#                                            print("b: " + str(loc[i]))
+                                            if(loc[i] == "Top_Shelf"):
+                                                e_loc.append(row)
+                                                e_pos.append("NULL")
+                                            else:
+                                                row = str(res[0][1])
+                                                pos = str(res[0][2])
+                                                
+                                                
+#                                                print("Row: " + row)
+#                                                print("Pos: " + pos)
+                                                e_loc.append(row)
+                                                e_pos.append(pos)
+#                                        print("eloc: " + str(e_loc))
+#                                        print("epos: " + str(e_pos))
+                                        
+                                    except:
+                                        mf.space()
+                                        db.rollback()
+                                        print("Error: Order location gathering")
+                                else:
+                                    e_loc.append("NULL")
+                                    e_pos.append("NULL")
+                                    
+                            for k in range(len(tote)):
+                                print(str(tote[k]) + "\t" + str(loc[k]) + "\t" + str(e_loc[k]) + "\t" + str(e_pos[k]))
+                    else:
+                        print("An error occurred!")
+            except:
+                db.rollback()
+                mf.space()
+                print("Error: Statistics Display")
         elif(usr_choice == 8):
             print("Database Clearing coming soon!")
         else:

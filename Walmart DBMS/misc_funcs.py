@@ -17,7 +17,6 @@ def time_conv_hr(mil):
 def Menu(Men_ops):
     tot_opts = len(Men_ops)
     usr_choice = 0
-    space()
     
     # Display menu
     print("\t\t\tMenu\n\n\n")
@@ -83,3 +82,8 @@ def disp_need_bags_checks(t, n, o, l): # Display all OSNs with locations of need
     print("\tOrders Not Assigned Bags\n\n")
     for i in range(len(t)):
         print("Order: \t" + o[i] + "\t" + n[i] + "\t" + t[i] + "\t" + l[i])
+        
+def get_lgst_num(nums): # Get the largest num
+    largest = max(nums)
+    
+    return largest
