@@ -42,7 +42,6 @@ def space():
 def get_y_n_choice(mess):
     choice = ""
     
-    space()    
     while(choice != 'n' and choice != 'y'):
         choice = input(mess)
         
@@ -87,3 +86,69 @@ def get_lgst_num(nums): # Get the largest num
     largest = max(nums)
     
     return largest
+
+def get_proper_staging_BR(o_li, r_li, p_li): # Gets the proper staging from the database for the Back Room
+    b01 = []
+    b02 = []
+    b03 = []
+    b11 = []
+    b12 = []
+    b13 = []
+    b21 = []
+    b22 = []
+    b23 = []
+    b31 = []
+    b32 = []
+    b33 = []
+    ret_li = []
+    
+    ret_li.clear()
+    
+#    print(o_li)
+#    print(r_li)
+#    print(p_li)
+    
+    for i in range(len(r_li)):
+        if(r_li[i] == "BR01"):
+            b01.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR02"):
+            b02.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR03"):
+            b03.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR11"):
+            b11.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR12"):
+            b12.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR13"):
+            b13.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR21"):
+            b21.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR22"):
+            b22.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR23"):
+            b23.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR31"):
+            b31.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR32"):
+            b32.append((str(o_li[i]), str(p_li[i])))
+        elif(r_li[i] == "BR33"):
+            b33.append((str(o_li[i]), str(p_li[i])))
+        else:
+            print("An error occurred with OSN: " + o_li[i])
+            
+    # Push into giant list
+    ret_li.append(b01)
+    ret_li.append(b02)
+    ret_li.append(b03)
+    ret_li.append(b11)
+    ret_li.append(b12)
+    ret_li.append(b13)
+    ret_li.append(b21)
+    ret_li.append(b22)
+    ret_li.append(b23)
+    ret_li.append(b31)
+    ret_li.append(b32)
+    ret_li.append(b33)
+
+    #print("Inner append: " + str(ret_li))
+    return ret_li

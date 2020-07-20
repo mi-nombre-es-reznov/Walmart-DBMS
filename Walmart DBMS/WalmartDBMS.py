@@ -6,6 +6,7 @@ import misc_funcs as mf
 import SQLqueries as sql
 import Staging as stage
 import stats as stat
+import csv
 
 global c
 global db
@@ -64,7 +65,11 @@ def main():
                         c_name = results[0][3]
                         osn = results[0][4]
                         ptype = results[0][5]
+                        loc = results[0][6]
                         bags = results[0][8]
+                        
+                        print("Location: " + str(loc))
+                        print("OSN: " + str(osn))
                         
                         pass_for_exist.append(str(time_delta))
                         pass_for_exist.append(str(c_name))
@@ -77,6 +82,29 @@ def main():
                         
                         # Reset list
                         pass_for_exist.clear()
+                        
+                        # Try and find existing locations
+                        query2 = sql.get_spec_loc(str(loc), str(osn))
+                        #print(query2)
+                        
+                        # Get location
+                        try:
+                            c.execute(query2)
+                            resloc = c.fetchall()
+                            
+                            if(len(resloc) == 0):
+                                print("No data returned from database")
+                            else:
+                                #print(str(resloc))
+                                
+                                loc2 = resloc[0][1]
+                                pos2 = resloc[0][2]
+                                
+                                print("OSN " + str(osn) + " stored at row '" + loc2 + "', pos: " + str(pos2))
+                        except:
+                            db.rollback()
+                            mf.space()
+                            print("Error: Getting Current Location from Insertion")
 
                 except:
                     print("Error: OSN Read Failure")
@@ -217,6 +245,32 @@ def main():
                                 db.rollback()
                                 mf.space()
                                 print("Error: Updating location table with write")
+                                
+                                if(int(osn) > 100 and int(osn) < 999):
+                                    # If exists, give location
+                                    query = sql.get_poss_stage(table_stage, osn)
+                                    
+                                    # Try and get osn's location
+                                    try:
+                                        c.execute(query)
+                                        ret = c.fetchall()
+                                        
+                                        #print("Ret res: " + str(ret))
+                                        o = str(ret[0][0])
+                                        l = str(ret[0][1])
+                                        p = str(ret[0][2])
+                                        
+                                        if(len(ret) == 0):
+                                            pass
+                                        elif(str(p) == str(table_pos)):
+                                            print(o + " staged at existing location!")
+                                        else:
+                                            print("Order " + o + " is stored in row " + l + " at position: " + p)
+                                            
+                                        print("\n\n")
+                                    except:
+                                        db.rollback()
+                                        print("Error getting OSN from loc")
                             
                             # Reset Values
                             osn = ""
@@ -246,7 +300,7 @@ def main():
                     break
                 
                 new_loc, new_row = stage.decode_loc(new_loc_ins)
-                if(new_row == "UR01" or new_row == "UR11"):
+                if(new_row == "UR01" or new_row == "UR11" or new_row == "TTF0" or new_row == "DS00"):
                     pass
                 else:
                     pos = mf.get_pos()
@@ -297,7 +351,7 @@ def main():
                             mf.space()
                             print("Error: Bulk Update Failure")
                             
-                        if(new_row == "UR01" or new_row == "UR11"):
+                        if(new_row == "UR01" or new_row == "UR11" or new_row == "TTF0" or new_row == "DS00"):
                             query = sql.insert_stage_top(new_loc, osn, new_row)
                         else:
                             # Write new location in table
@@ -481,6 +535,7 @@ def main():
         elif(usr_choice == 7):
             Stats_Items = ["General Tote Information", "Timed Deliveries", "Order Count", "Cancelled Orders", "Display Backroom Data", "Find Order"]
             count = 0
+            q_choice = 0
                         
             choice = mf.Menu(Stats_Items)
             
@@ -493,7 +548,7 @@ def main():
             elif(choice == 4):
                 query = stat.cancelled_orders()
             elif(choice == 5):
-                print("Backroom data coming soon!")
+                q_choice, query = stat.get_BR()
             elif(choice == 6):
                 query = stat.find_order()
             else:
@@ -693,7 +748,107 @@ def main():
                         # Print final count
                         print("\n\nShowing a total of " + str(count) + " cancelled orders.")
                     elif(choice == 5):
-                        pass
+                        osn_list = []
+                        row_list = []
+                        pos_list = []
+                        b01 = []
+                        b02 = []
+                        b03 = []
+                        b11 = []
+                        b12 = []
+                        b13 = []
+                        b21 = []
+                        b22 = []
+                        b23 = []
+                        b31 = []
+                        b32 = []
+                        b33 = []
+                        dead = [] # Here for later
+                        osn = ""
+                        row = ""
+                        pos = ""
+                        li_o_li_format = []
+                        count = 0
+                        cnt_list = []
+                        
+                        #print("Res: " + str(results))
+                        
+                        if(len(results) == 0):
+                            print("No data returned from DBMS")
+                        else:
+                            for i in range(len(results)):
+                                # Get needed data
+                                osn = str(results[i][0])
+                                row = str(results[i][1])
+                                pos = str(results[i][2])
+                                
+                                # Push to list
+                                if(osn not in osn_list):
+                                    osn_list.append(osn)
+                                    row_list.append(row)
+                                    pos_list.append(pos)
+                                    
+#                            print("osn: " + str(osn_list))
+#                            print("row: " + str(row_list))
+#                            print("pos: " + str(pos_list))
+                                    
+                            #print("Data unique complete")
+                            # Push unique data to proper loc
+                            li_o_li_format = mf.get_proper_staging_BR(osn_list, row_list, pos_list)
+                            
+                            #print("Test: " + str(li_o_li_format))
+                            
+                            # Assign to proper lists
+                            b01 = li_o_li_format[0]
+                            b02 = li_o_li_format[1]
+                            b03 = li_o_li_format[2]
+                            b11 = li_o_li_format[3]
+                            b12 = li_o_li_format[4]
+                            b13 = li_o_li_format[5]
+                            b21 = li_o_li_format[6]
+                            b22 = li_o_li_format[7]
+                            b23 = li_o_li_format[8]
+                            b31 = li_o_li_format[9]
+                            b32 = li_o_li_format[10]
+                            b33 = li_o_li_format[11]
+                            
+                            
+                            # Keep a global counter
+                            count += 1
+                                    
+                            # Get the number of entries per list
+                            b01_cnt = len(b01)
+                            b02_cnt = len(b02)
+                            b03_cnt = len(b03)
+                            b11_cnt = len(b11)
+                            b12_cnt = len(b12)
+                            b13_cnt = len(b13)
+                            b21_cnt = len(b21)
+                            b22_cnt = len(b22)
+                            b23_cnt = len(b23)
+                            b31_cnt = len(b31)
+                            b32_cnt = len(b32)
+                            b33_cnt = len(b33)
+                            
+                            # Push all length values into a list
+                            cnt_list.append(b01_cnt)
+                            cnt_list.append(b02_cnt)
+                            cnt_list.append(b03_cnt)
+                            cnt_list.append(b11_cnt)
+                            cnt_list.append(b12_cnt)
+                            cnt_list.append(b13_cnt)
+                            cnt_list.append(b21_cnt)
+                            cnt_list.append(b22_cnt)
+                            cnt_list.append(b23_cnt)
+                            cnt_list.append(b31_cnt)                            
+                            cnt_list.append(b32_cnt)
+                            cnt_list.append(b33_cnt)
+                                                
+                            # Get max values
+                            largest = mf.get_lgst_num(cnt_list)
+                            #print("largest: " + str(largest))
+                            stat.print_BR_res(q_choice, largest, count, b01_cnt, b02_cnt, b03_cnt, b11_cnt, b12_cnt, b13_cnt, b21_cnt, b22_cnt, b23_cnt, b31_cnt, b32_cnt, b33_cnt, b01, b02, b03, b11, b12, b13, b21, b22, b23, b31, b32, b33)
+                                                        
                     elif(choice == 6):
                         n_bags = 0
                         time = ""
@@ -767,13 +922,82 @@ def main():
                 mf.space()
                 print("Error: Statistics Display")
         elif(usr_choice == 8):
-            print("Database Clearing coming soon!")
+            moveon = ""
+            verify = ""
+            mf.space()
+            queries = []
+            print("WARNING: THIS CANNOT BE UNDONE!!!!\n\n\n")
+            
+            while(moveon != 'y' and moveon != 'n'):
+                # Ask to continue before moving on
+                moveon = mf.get_y_n_choice("Continue? [Y/n] ")
+                
+            if(moveon == 'y'):
+                while(verify != "WMDBMS"):
+                    verify = input("Enter 'WMDBMS' to delete the database: ")
+                    
+                save_file = input("Enter a file name to save the main data before deletion! ")
+                
+                # Append extension to name
+                save_file = (save_file + ".csv")
+                
+                query = sql.get_type_groupings()
+                
+                try:
+                    c.execute(query)
+                    results = c.fetchall()
+                    title = ["Order Number", "Tote Type", "Due Time", "Customer Name", "OSN", "Pickup Type", "Location", "Dispensed", "Bags"]
+                    #print(results)
+                    
+                    if(len(results) == 0):
+                        print("Nothing to delete! Rolling back database")
+                    else:
+                        with open(save_file, 'w', newline = '') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(title)
+                            writer.writerows(results)
+                            
+                        print("Database write successful!")
+                        
+                        queries = sql.del_db()
+                        
+                        for i in range(len(queries)):
+                            try:
+                                c.execute(str(queries[i]))
+                                db.commit()
+                            except:
+                                db.rollback()
+                                print("Error: Delete table Data")
+                                
+                        print("All data has been deleted from the DBMS")
+                except:
+                    db.rollback()
+                    mf.space()
+                    print("Error: Database Deletion Data")
+            elif(moveon == 'n'):
+                mf.space()
+                print("Database deletion has been exited with no changes!\n\n")
+                main()
+            else:
+                print("Something Went Wrong at the Deletion Stage")
         else:
             print("Invalid choice")
             usr_choice = 0
          
         print("\n\n\n")
         query = "" # Reset as a precaution
+        
+        cont = ""
+        while(cont != 'y'):
+            # Ask to continue before moving on
+            cont = mf.get_y_n_choice("Continue? [Y/n] ")
+            
+            if(cont == 'y'):
+                pass
+            
+        # Reset for next output
+        cont = 'n'
+            
     
 # Establish a connection and bound check phpmyadmin and python boundaries
 if(__name__ == '__main__'):

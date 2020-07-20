@@ -88,7 +88,7 @@ def get_cancelled(): # Get all cancelled orders
     
     return query
 
-def get_type_groupings(): # Get all groupings with no dups in OSN
+def get_type_groupings(): # Get all groupings
     query = ("SELECT * FROM `Create_Objs`;")
     
     return query
@@ -102,3 +102,36 @@ def get_order_osn(osn): # Get an order from the database via an OSN number
     query = ("SELECT OSN, Due_Time, Type, Location, Bags FROM `Create_Objs` WHERE OSN = '{0}'".format(osn))
     
     return query
+
+def get_poss_stage(loc, osn): # Get the possible staged area already
+    query = ("SELECT * FROM {0} WHERE OSN = '{1}';".format(loc, osn))
+    
+    return query
+
+def get_BR_curr(): # Get all current backroom totes/orders
+    query = ("SELECT br.OSN, br.row, br.pos FROM `Create_Objs` AS co INNER JOIN `Back_Room` AS br ON co.OSN = br.OSN WHERE Location = 'Back_Room' and (Type = 'AMBIENT' or Type = 'UNKNOWN');")
+    
+    return query
+
+def del_db(): # Get query to delete all tables in the database
+    q = []
+    
+    query = ("DELETE FROM Create_Objs;")
+    query2 = ("DELETE FROM Back_Room;")
+    query3 = ("DELETE FROM Dispensing;")
+    query4 = ("DELETE FROM Late;")
+    query5 = ("DELETE FROM Staging;")
+    query6 = ("DELETE FROM Top_Shelf;")
+    query7 = ("DELETE FROM Transfer_One;")
+    query8 = ("DELETE FROM Transfer_Zero;")
+    
+    q.append(query)
+    q.append(query2)
+    q.append(query3)
+    q.append(query4)
+    q.append(query5)
+    q.append(query6)
+    q.append(query7)
+    q.append(query8)
+    
+    return q

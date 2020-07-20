@@ -97,6 +97,9 @@ def decode_loc(l):
     elif(l == "DS00" or l == "1000100010100110011000000110000"):
         decode = "Dead_Stage"
         row = "DS00"
+    elif(l == "TTF0" or l == "1010100010101000100011000110000"):
+        decode = "BR_to_DR"
+        row = "TTF0"
     else:
         print("Invalid Location. Enter a valid location!")
         decode = "Invalid"
