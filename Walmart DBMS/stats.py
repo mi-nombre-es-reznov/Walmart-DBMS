@@ -145,7 +145,7 @@ def get_BR(): # Get the backroom data
     return choice, query
     #print("|492 | 0|\n|-------|\n|469 | 0|")
 
-def print_BR_res(choice, lgst, cnt, b01c, b02c, b03c, b11c, b12c, b13c, b21c, b22c, b23c, b31c, b32c, b33c, b01, b02, b03, b11, b12, b13, b21, b22, b23, b31, b32, b33): # This will take all the lists and print the results
+def print_BR_res(lgst, b01c, b02c, b03c, b11c, b12c, b13c, b21c, b22c, b23c, b31c, b32c, b33c, b01, b02, b03, b11, b12, b13, b21, b22, b23, b31, b32, b33): # This will take all the lists and print the results
     b01tmp = ""
     b02tmp = ""
     b03tmp = ""
@@ -272,3 +272,100 @@ def print_BR_res(choice, lgst, cnt, b01c, b02c, b03c, b11c, b12c, b13c, b21c, b2
 #            print(str(b21tmp) + "\t" + str(b22tmp) + "\t" + str(b23tmp) + "\t" + str(b31tmp) + "\t" + str(b32tmp) + "\t" + str(b33tmp))
 #        else:
 #            print("Something went wrong!")
+
+def find_order_BR(): # Query to find an order and it's locations
+    osn = 0 
+    try:
+        while(osn > 999 or osn < 100):
+            osn = int(input("Enter OSN: "))
+    except ValueError:
+        print("Enter a valid number")
+            
+    query = sql.get_order_osn_BR(osn)
+
+    mf.space()
+    #print("Finding Order for: {0}".format(osn))
+    
+    return query, osn
+
+def Print_Backroom_Staging(lgst, b01c, b02c, b03c, b11c, b12c, b13c, b21c, b22c, b23c, b31c, b32c, b33c, b01, b02, b03, b11, b12, b13, b21, b22, b23, b31, b32, b33): # This will take all the lists and print the results
+    b01tmp = ""
+    b02tmp = ""
+    b03tmp = ""
+    b11tmp = ""
+    b12tmp = ""
+    b13tmp = ""
+    b21tmp = ""
+    b22tmp = ""
+    b23tmp = ""
+    b31tmp = ""
+    b32tmp = ""
+    b33tmp = ""
+
+    print("\n")
+    print("BR01\tBR02\tBR03\t|\tBR11\tBR12\tBR13\t|\tBR21\tBR22\tBR23\t|\tBR31\tBR32\tBR33")
+    print("----\t----\t----\t|\t----\t----\t----\t|\t----\t----\t----\t|\t----\t----\t----")
+
+    # Check each list to make sure that the length is not being exceeded
+    for i in range(lgst):
+        if(i > (b01c - 1)):
+            b01tmp = ""
+        else:
+            b01tmp = b01[i]
+            
+        if(i > (b02c - 1)):
+            b02tmp = ""
+        else:
+            b02tmp = b02[i]
+            
+        if(i > (b03c - 1)):
+            b03tmp = ""
+        else:
+            b03tmp = b03[i]
+            
+        if(i > (b11c - 1)):
+            b11tmp = ""
+        else:
+            b11tmp = b11[i]
+            
+        if(i > (b12c - 1)):
+            b12tmp = ""
+        else:
+            b12tmp = b12[i]
+  
+        if(i > (b13c - 1)):
+            b13tmp = ""
+        else:
+            b13tmp = b13[i]
+            
+        if(i > (b21c - 1)):
+            b21tmp = ""
+        else:
+            b21tmp = b21[i]
+            
+        if(i > (b22c - 1)):
+            b22tmp = ""
+        else:
+            b22tmp = b22[i]
+            
+        if(i > (b23c - 1)):
+            b23tmp = ""
+        else:
+            b23tmp = b23[i]
+            
+        if(i > (b31c - 1)):
+            b31tmp = ""
+        else:
+            b31tmp = b31[i]
+            
+        if(i > (b32c - 1)):
+            b32tmp = ""
+        else:
+            b32tmp = b32[i]
+            
+        if(i > (b33c - 1)):
+            b33tmp = ""
+        else:
+            b33tmp = b33[i]
+
+        print(str(b01tmp) + "\t" + str(b02tmp) + "\t" + str(b03tmp) + "\t\t" + str(b11tmp) + "\t" + str(b12tmp) + "\t" + str(b13tmp) + "\t\t" + str(b21tmp) + "\t" + str(b22tmp) + "\t" + str(b23tmp) + "\t\t" + str(b31tmp) + "\t" + str(b32tmp) + "\t" + str(b33tmp))

@@ -135,3 +135,53 @@ def del_db(): # Get query to delete all tables in the database
     q.append(query8)
     
     return q
+
+def test_osn_BR(osn):
+    query = ("SELECT * FROM `Main` WHERE OSN = '{0}'".format(osn))
+    
+    return query
+
+def ins_tote_BR(order, osn, di):
+    query = ("INSERT INTO `Main`(Order_Num, OSN, Location, Transfered) VALUES('{0}', '{1}', 'Unstaged', '{2}');".format(order, osn, di))
+    
+    return query
+
+def ins_time_BR(osn, time):
+    query = ("INSERT INTO Times(OSN, Time) VALUES('{0}', '{1}');".format(osn, time))
+    
+    return query
+
+def find_order_BR(order):
+    query = ("SELECT * FROM `Main` WHERE Order_Num = '{0}';".format(order))
+    
+    return query
+
+def find_order_loc_BR(osn):
+    query = ("SELECT `Location` FROM `Main` WHERE OSN = '{0}';".format(osn))
+    
+    return query
+
+def upd_staging_BR(order, loc):
+    query = ("UPDATE `Main` SET `Location` = '{0}' WHERE Order_Num = '{1}';".format(loc, order))
+    
+    return query
+
+def upd_transfer_get_osn_BR(t):
+    query = ("SELECT OSN FROM `Times` WHERE Time = '{0}';".format(t))
+    
+    return query
+
+def upd_transfer_status(osn):
+    query = ("UPDATE `Main` SET `Transfered` = '1' WHERE OSN = '{0}';".format(osn))
+    
+    return query
+
+def get_cnt_hr_BR(t):
+    query = ("SELECT Count(OSN) FROM `Times` WHERE Time = '{0}';".format(t))
+    
+    return query
+
+def get_order_osn_BR(osn):
+    query = ("SELECT Location FROM `Main` WHERE OSN = '{0}' and Location != 'Unstaged' and Transfered = 0;".format(osn))
+    
+    return query
