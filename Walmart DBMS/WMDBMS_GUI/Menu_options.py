@@ -62,3 +62,18 @@ def transfer_Menu():
 def disp_tote_layout_Menu():
     print("BR01\tBR02\tBR03\t|\tBR11\tBR12\tBR13\t|\tBR21\tBR22\tBR23\t|\tBR31\tBR32\tBR33")
     print("----\t----\t----\t|\t----\t----\t----\t|\t----\t----\t----\t|\t----\t----\t----")
+    
+def dup_Menu():
+    print("********************")
+    print("* Duplicate Finder *")
+    print("********************\n\n")
+    
+def osn_finder_Menu():
+    print("**************")
+    print("* OSN Finder *")
+    print("**************\n\n")
+    
+def curr_conf_stats():
+    print("**********************")
+    print("* Current Statistics *")
+    print("**********************\n\n")

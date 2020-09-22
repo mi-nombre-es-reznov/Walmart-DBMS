@@ -199,3 +199,16 @@ def disp_tote_layout(lol):
         print(t1 + "\t" + t2 + "\t" + t3 + "\t|\t" + t4 + "\t" + t5 + "\t" + t6 + "\t|\t" + t7 + "\t" + t8 + "\t" + t9 + "\t|\t" + t10 + "\t" + t11 + "\t" + t12)
         
     print("\n\n")
+    
+def get_staged_items_times():
+    query = ""
+    query = sql.view_main_times()
+    
+    return query
+
+
+def get_view_data():
+    query = ""
+    query = sql.view_data()
+    
+    return query
