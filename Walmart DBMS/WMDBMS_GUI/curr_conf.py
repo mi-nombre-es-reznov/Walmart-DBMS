@@ -9,7 +9,7 @@ def get_staged_items():
     
     return query
 
-def seperate_staged_data(results):
+def seperate_staged_data(results, alt):
     osns = ""
     locs = ""
     BR01 = []
@@ -25,35 +25,35 @@ def seperate_staged_data(results):
     BR32 = []
     BR33 = []
     li_of_li = []
-    
+        
     # Iterate through results and place in appropriate lists
     for i in range(len(results)):
         osns = str(results[i][0])
         locs = str(results[i][1])
         
-        if((locs == "BR01") and (osns not in BR01)):
+        if((locs == "BR01" or locs == alt[0]) and (osns not in BR01)):
             BR01.append(osns)
-        elif((locs == "BR02") and (osns not in BR02)):
+        elif((locs == "BR02" or locs == alt[1]) and (osns not in BR02)):
             BR02.append(osns)
-        elif((locs == "BR03") and (osns not in BR03)):
+        elif((locs == "BR03" or locs == alt[2]) and (osns not in BR03)):
             BR03.append(osns)
-        elif((locs == "BR11") and (osns not in BR11)):
+        elif((locs == "BR11" or locs == alt[3]) and (osns not in BR11)):
             BR11.append(osns)
-        elif((locs == "BR12") and (osns not in BR12)):
+        elif((locs == "BR12" or locs == alt[4]) and (osns not in BR12)):
             BR12.append(osns)
-        elif((locs == "BR13") and (osns not in BR13)):
+        elif((locs == "BR13" or locs == alt[5]) and (osns not in BR13)):
             BR13.append(osns)
-        elif((locs == "BR21") and (osns not in BR21)):
+        elif((locs == "BR21" or locs == alt[6]) and (osns not in BR21)):
             BR21.append(osns)
-        elif((locs == "BR22") and (osns not in BR22)):
+        elif((locs == "BR22" or locs == alt[7]) and (osns not in BR22)):
             BR22.append(osns)
-        elif((locs == "BR23") and (osns not in BR23)):
+        elif((locs == "BR23" or locs == alt[8]) and (osns not in BR23)):
             BR23.append(osns)
-        elif((locs == "BR31") and (osns not in BR31)):
+        elif((locs == "BR31" or locs == alt[9]) and (osns not in BR31)):
             BR31.append(osns)
-        elif((locs == "BR32") and (osns not in BR32)):
+        elif((locs == "BR32" or locs == alt[10]) and (osns not in BR32)):
             BR32.append(osns)
-        elif((locs == "BR33") and (osns not in BR33)):
+        elif((locs == "BR33" or locs == alt[11]) and (osns not in BR33)):
             BR33.append(osns)
             
     # Concate lists

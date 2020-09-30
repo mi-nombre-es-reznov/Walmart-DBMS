@@ -77,3 +77,8 @@ def curr_conf_stats():
     print("**********************")
     print("* Current Statistics *")
     print("**********************\n\n")
+    
+def alt_locs():
+    print("***********************")
+    print("* Alternate Locations *")
+    print("***********************\n\n")

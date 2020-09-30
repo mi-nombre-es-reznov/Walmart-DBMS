@@ -1,3 +1,5 @@
+import csv
+
 # import only system from os
 from os import system, name
 from collections import Counter
@@ -86,3 +88,34 @@ def get_unique_list_tup(og):
     
             
     return ret_uni
+
+def get_alt_locs(h):
+    alts = []
+    
+    for i in range(len(h)):
+        temp = input("Scan for alt to " + h[i] + ": ")
+        
+        alts.append(temp)
+        
+    return alts
+
+def test_csv(file_name):
+    h = ['BR01', 'BR02', 'BR03', 'BR11', 'BR12', 'BR13', 'BR21', 'BR22', 'BR23', 'BR31', 'BR32', 'BR33']
+    locs = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+
+    # Test connection
+    try:
+        with open(file_name) as file:
+            reader = csv.reader(file)
+            
+            for i in reader:                
+                alt = i
+    except FileNotFoundError:
+        with open(file_name, 'w', newline = '') as f:
+            
+            writes = csv.writer(f)
+            
+            writes.writerow(h)
+            writes.writerow(locs)
+
+    return alt
